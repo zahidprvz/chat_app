@@ -5,7 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class ChatScreen extends StatefulWidget {
   static const String id = 'chat_screen';
 
-  const ChatScreen({Key? key}) : super(key: key);
+  const ChatScreen({super.key});
 
   @override
   _ChatScreenState createState() => _ChatScreenState();
@@ -28,7 +28,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   void getCurrentUser() async {
     try {
-      final user = await _auth.currentUser;
+      final user = _auth.currentUser;
       setState(() {
         loggedInUser = user;
       });
@@ -69,14 +69,12 @@ class _ChatScreenState extends State<ChatScreen> {
       ),
       body: SafeArea(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            MessagesStream(firestore: _firestore, loggedInUser: loggedInUser),
             Container(
               decoration: BoxDecoration(
                 border: Border(
-                  top: BorderSide(color: Colors.grey.shade300),
+                  bottom: BorderSide(color: Colors.grey.shade300),
                 ),
               ),
               child: Row(
@@ -90,9 +88,9 @@ class _ChatScreenState extends State<ChatScreen> {
                         onChanged: (value) {
                           messageText = value;
                         },
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                           hintText: 'Type your message...',
-                          contentPadding: const EdgeInsets.all(10.0),
+                          contentPadding: EdgeInsets.all(10.0),
                           border: InputBorder.none,
                         ),
                       ),
@@ -100,11 +98,15 @@ class _ChatScreenState extends State<ChatScreen> {
                   ),
                   IconButton(
                     onPressed: _sendMessage, // Call _sendMessage method
-                    icon: Icon(Icons.send),
+                    icon: const Icon(Icons.send),
                     color: Colors.lightBlueAccent,
                   ),
                 ],
               ),
+            ),
+            Expanded(
+              child: MessagesStream(
+                  firestore: _firestore, loggedInUser: loggedInUser),
             ),
           ],
         ),
@@ -115,10 +117,10 @@ class _ChatScreenState extends State<ChatScreen> {
 
 class MessagesStream extends StatelessWidget {
   const MessagesStream({
-    Key? key,
+    super.key,
     required this.firestore,
     required this.loggedInUser,
-  }) : super(key: key);
+  });
 
   final FirebaseFirestore firestore;
   final User? loggedInUser;
@@ -129,7 +131,7 @@ class MessagesStream extends StatelessWidget {
       stream: firestore.collection('messages').orderBy('timestamp').snapshots(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(
+          return const Center(
             child: CircularProgressIndicator(
               backgroundColor: Colors.lightBlueAccent,
             ),
@@ -160,12 +162,10 @@ class MessagesStream extends StatelessWidget {
           messageBubbles.add(messageBubble);
         }
 
-        return Expanded(
-          child: ListView(
-            reverse: true,
-            padding: const EdgeInsets.all(8.0),
-            children: messageBubbles,
-          ),
+        return ListView(
+          reverse: true,
+          padding: const EdgeInsets.all(8.0),
+          children: messageBubbles,
         );
       },
     );
@@ -173,7 +173,12 @@ class MessagesStream extends StatelessWidget {
 }
 
 class MessageBubble extends StatelessWidget {
-  MessageBubble({required this.sender, required this.text, required this.isMe});
+  const MessageBubble({
+    super.key,
+    required this.sender,
+    required this.text,
+    required this.isMe,
+  });
 
   final String sender;
   final String text;
